@@ -27,7 +27,7 @@ module.exports = {
                 instance = new RetinaDownsizer();
             }, 'Fails initialising without options');
 
-            test.strictEqual(instance.dir, './');
+            test.strictEqual(instance.targets, './');
             test.strictEqual(instance.extensions.length, 4);
             test.strictEqual(instance.log, console.log);
 
@@ -37,12 +37,13 @@ module.exports = {
         'Test custom configuration': function (test) {
             var logFunction = function () {},
                 instance = new RetinaDownsizer({
-                    dir: '/test',
+                    targets: [ '/foo', '/bar' ],
                     extensions: [ 'gif' ],
                     log: logFunction
                 });
 
-            test.strictEqual(instance.dir, '/test');
+            test.strictEqual(instance.targets[0], '/foo');
+            test.strictEqual(instance.targets[1], '/bar');
             test.strictEqual(instance.extensions.length, 1);
             test.strictEqual(instance.log, logFunction);
 
@@ -112,8 +113,8 @@ module.exports = {
         setUp: utils.createAssetDir,
         tearDown: utils.destroyAssetsDir,
 
-        'Test downsize run cases': function (test) {
-            var downsizer = new RetinaDownsizer({ dir: config.tempDir, log: function () {} });
+        'Test with single target': function (test) {
+            var downsizer = new RetinaDownsizer({ targets: config.tempDir, log: function () {} });
                 files = [
                     path.resolve(config.tempDir, 'foo@2x.png'),
                     path.resolve(config.tempDir, 'foo/bar@2x.png'),
@@ -135,8 +136,74 @@ module.exports = {
             });
         },
 
+        'Test targeting multiple directories': function (test) {
+            var downsizer = new RetinaDownsizer({
+                targets: [
+                    path.resolve(config.tempDir, 'foo'),
+                    path.resolve(config.tempDir, 'bar')
+                ],
+                log: function () {}
+            });
+                files = [
+                    path.resolve(config.tempDir, 'foo/a@2x.png'),
+                    path.resolve(config.tempDir, 'foo/b@2x.png'),
+                    path.resolve(config.tempDir, 'bar/c@2x.png'),
+                    path.resolve(config.tempDir, 'bar/d@2x.png')
+                ];
+
+            utils.createSamplesAndRun(downsizer, files, function (err, results) {
+                if (err) { throw err; }
+
+                test.strictEqual(results.length, 4);
+                test.done();
+            });
+        },
+
+        'Test targeting directories and files': function (test) {
+            var downsizer = new RetinaDownsizer({
+                    targets: [
+                        path.resolve(config.tempDir, 'foo'),
+                        path.resolve(config.tempDir, 'bar'),
+                        path.resolve(config.tempDir, 'test@2x.png')
+                    ],
+                    log: function () {}
+                }),
+                files = [
+                    path.resolve(config.tempDir, 'foo/a@2x.png'),
+                    path.resolve(config.tempDir, 'bar/c@2x.png'),
+                    path.resolve(config.tempDir, 'test@2x.png')
+                ];
+
+            utils.createSamplesAndRun(downsizer, files, function (err, results) {
+                if (err) { throw err; }
+
+                test.strictEqual(results.length, 3);
+                test.done();
+            });
+        },
+
+        'Test that targets don\'t overlap': function (test) {
+            var downsizer = new RetinaDownsizer({
+                    targets: [
+                        path.resolve(config.tempDir, 'foo'),
+                        path.resolve(config.tempDir, 'foo/bar@2x.png'),
+                    ],
+                    log: function () {}
+                }),
+                files = [
+                    path.resolve(config.tempDir, 'foo/bar@2x.png'),
+                ];
+
+            utils.createSamplesAndRun(downsizer, files, function (err, results) {
+                if (err) { throw err; }
+
+                test.strictEqual(results.length, 1);
+                test.done();
+            });
+        },
+
         'Test downsize renaming': function (test) {
-            var downsizer = new RetinaDownsizer({ dir: config.tempDir, log: function () {} }),
+            var downsizer = new RetinaDownsizer({ targets: config.tempDir, log: function () {} }),
                 files = [
                     path.resolve(config.tempDir, 'foo@2x.png')
                 ],
@@ -153,7 +220,7 @@ module.exports = {
         },
 
         'Test downsize recursivity': function (test) {
-            var downsizer = new RetinaDownsizer({ dir: config.tempDir, log: function () {} }),
+            var downsizer = new RetinaDownsizer({ targets: config.tempDir, log: function () {} }),
                 files = [
                     path.resolve(config.tempDir, 'a/b/c/d/e/foo@2x.png')
                 ],
@@ -179,7 +246,7 @@ module.exports = {
         'Test downsize logs': function (test) {
             var logs = [],
                 downsizer = new RetinaDownsizer({
-                    dir: config.tempDir,
+                    targets: config.tempDir,
                     log: function (msg) {
                         logs.push(msg);
                     }

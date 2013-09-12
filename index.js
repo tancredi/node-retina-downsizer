@@ -8,7 +8,7 @@ var path = require('path'),
 
 RetinaDownsizer = function (options) {
     options = options || {};
-    this.dir = options.dir || './';
+    this.targets = options.targets || './';
     this.extensions = options.extensions || [ 'png', 'jpg', 'jpeg', 'gif' ];
     this.log = options.log || console.log;
 };
@@ -19,15 +19,15 @@ RetinaDownsizer.prototype.run = function (callback) {
         self = this;
 
     async.map(files, function (file, callback) {
-        self.log(color.cyan('Downsizing ' + path.relative(self.dir, file) + '…'));
+        self.log(color.cyan('Downsizing ' + path.relative(file.root, file.path) + '…'));
 
-        downsizeImage(file, function (err, newFile) {
+        downsizeImage(file.path, function (err, newFile) {
             if (err) {
                 self.log(color.red('✘ ') + color.white(err));
                 return callback(err, null);
             }
 
-            self.log(color.green('✓ ') + color.white('Created ' + path.relative(self.dir, newFile)));
+            self.log(color.green('✓ ') + color.white('Created ' + path.relative(file.root, newFile)));
             callback(null, newFile);
         });
     }, function (err, newFiles) {
@@ -37,16 +37,25 @@ RetinaDownsizer.prototype.run = function (callback) {
 };
 
 RetinaDownsizer.prototype.getAssetsList = function () {
-    var paths = walk.sync(this.dir),
-        files = [];
+    var targets = (typeof this.targets === 'string' ? [ this.targets ] : this.targets),
+        paths = [], files = [], scanned = [],
+        i, n;
 
-    for (i = 0; i < paths.length; i += 1) {
-        parts = paths[i].split('.');
-        ext = parts[parts.length - 1];
-        suffixed = parts[parts.length - 2] && parts[parts.length - 2].substr(-3) === '@2x';
+    for (i = 0; i < targets.length; i += 1) {
+        paths = walk.sync(targets[i]);
 
-        if (suffixed && this.extensions.indexOf(ext) !== -1) {
-            files.push(paths[i]);
+        for (n = 0; n < paths.length; n += 1) {
+            if (scanned.indexOf(paths[n]) === -1) {
+                parts = paths[n].split('.');
+                ext = parts[parts.length - 1];
+                suffixed = parts[parts.length - 2] && parts[parts.length - 2].substr(-3) === '@2x';
+
+                if (suffixed && this.extensions.indexOf(ext) !== -1) {
+                    files.push({ root: targets[i], path: paths[n] });
+                }
+
+                scanned.push(paths[n]);
+            }
         }
     }
 
