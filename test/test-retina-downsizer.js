@@ -32,6 +32,8 @@ module.exports = {
             test.strictEqual(instance.log, console.log);
             test.strictEqual(instance.verbosity, 2);
             test.strictEqual(instance.depth, 0);
+            test.ok(instance.densities.length);
+            test.strictEqual(instance.densities[0], 1);
 
             test.done();
         },
@@ -43,7 +45,8 @@ module.exports = {
                     extensions: [ 'gif' ],
                     log: logFunction,
                     verbosity: 1,
-                    depth: 2
+                    depth: 2,
+                    densities: [ 1.5, 1.8 ]
                 });
 
             test.strictEqual(instance.targets[0], './foo');
@@ -52,6 +55,7 @@ module.exports = {
             test.strictEqual(instance.log, logFunction);
             test.strictEqual(instance.verbosity, 1);
             test.strictEqual(instance.depth, 2);
+            test.strictEqual(instance.densities.length, 2);
 
             test.done();
         },
@@ -69,7 +73,7 @@ module.exports = {
                     test.strictEqual(features.width, 200);
                     test.strictEqual(features.height, 200);
 
-                    downsizeImage(filePath, function (err, newFile) {
+                    downsizeImage(filePath, 1, function (err, newFile) {
                         if (err) { throw err; }
 
                         im.identify(newFile, function (err, features) {
@@ -85,11 +89,49 @@ module.exports = {
             });
         },
 
+        'Test downsize with different densities': function (test) {
+            utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
+
+                async.parallel([
+
+                    function (callback) {
+                        downsizeImage(filePath, 1, function (err, newFile) {
+                            im.identify(path.resolve(config.tempDir, 'foo.png'), function (err, features) {
+                                if (err) { throw err; }
+
+                                test.strictEqual(features.width, 100);
+                                test.strictEqual(features.height, 100);
+
+                                callback();
+                            });
+                        });
+                    },
+
+                    function (callback) {
+                        downsizeImage(filePath, 1.5, function (err, newFile) {
+                            im.identify(path.resolve(config.tempDir, 'foo@1.5.png'), function (err, features) {
+                                if (err) { throw err; }
+
+                                test.strictEqual(features.width, 150);
+                                test.strictEqual(features.height, 150);
+
+                                callback();
+                            });
+                        });
+                    },
+
+                ], function () {
+                    test.done();
+                });
+
+            });
+        },
+
         'Test downsize error on lack of retina suffix': function (test) {
             utils.createTestImage(200, 200, 'test/no-suffix.png', function (filePath) {
 
                 test.throws(function () {
-                    downsizeImage(filePath, function (err, newFile) {
+                    downsizeImage(filePath, 1, function (err, newFile) {
                         if (err) { throw err; }
                     });
                 }, Error);
@@ -101,7 +143,7 @@ module.exports = {
         'Test downsize flooring on odd sizes': function (test) {
             utils.createTestImage(199, 200, 'aaa@2x.png', function (filePath) {
 
-                downsizeImage(filePath, function (err, newFile) {
+                downsizeImage(filePath, 1, function (err, newFile) {
                     if (err) { throw err; }
 
                     im.identify(newFile, function (err, features) {
@@ -139,6 +181,43 @@ module.exports = {
 
                 test.strictEqual(results.length, 4);
                 test.done();
+            });
+        },
+
+        'Test with custom densities target': function (test) {
+            var downsizer = new RetinaDownsizer({
+                    targets: config.tempDir,
+                    log: function () {},
+                    densities: [ 0.5, 1, 1.5 ]
+                });
+
+            utils.createTestImage(200, 200, 'foo@2x.png', function () {
+
+                downsizer.run(function (err, generated) {
+                    if (err) { throw err; }
+
+                    async.map([
+                        path.resolve(config.tempDir, 'foo.png'),
+                        path.resolve(config.tempDir, 'foo@1.5.png'),
+                        path.resolve(config.tempDir, 'foo@0.5.png')
+                    ],
+                    im.identify,
+                    function (err, features) {
+                        if (err) { throw err; }
+
+                        test.strictEqual(features[0].width, 100);
+                        test.strictEqual(features[0].height, 100);
+
+                        test.strictEqual(features[1].width, 150);
+                        test.strictEqual(features[1].height, 150);
+
+                        test.strictEqual(features[2].width, 50);
+                        test.strictEqual(features[2].height, 50);
+
+                        test.done();
+                    });
+                });
+
             });
         },
 
@@ -188,7 +267,7 @@ module.exports = {
             });
         },
 
-        'Test walking depth': function (test) {
+        'Test limited walking depth': function (test) {
             var downsizer = new RetinaDownsizer({
                     targets: path.resolve(config.tempDir, './'),
                     log: function () {},
@@ -210,11 +289,31 @@ module.exports = {
             });
         },
 
+        'Test with no walking depth': function (test) {
+            var downsizer = new RetinaDownsizer({
+                    targets: path.resolve(config.tempDir, './'),
+                    log: function () {},
+                    depth: 1
+                }),
+                files = [
+                    path.resolve(config.tempDir, 'target@2x.png'),
+                    path.resolve(config.tempDir, 'sub/ignore@2x.png'),
+                    path.resolve(config.tempDir, 'sub/sub/ignore@2x.png')
+                ];
+
+            utils.createSamplesAndRun(downsizer, files, function (err, results) {
+                if (err) { throw err; }
+
+                test.strictEqual(results.length, 1);
+                test.done();
+            });
+        },
+
         'Test that targets don\'t overlap': function (test) {
             var downsizer = new RetinaDownsizer({
                     targets: [
                         path.resolve(config.tempDir, 'foo'),
-                        path.resolve(config.tempDir, 'foo/bar@2x.png'),
+                        path.resolve(config.tempDir, 'foo/bar@2x.png')
                     ],
                     log: function () {}
                 }),

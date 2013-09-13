@@ -1,5 +1,6 @@
 
 var path = require('path'),
+    _ = require('underscore'),
     async = require('async'),
     color = require('cli-color'),
     walk = require('walkdir'),
@@ -13,6 +14,7 @@ RetinaDownsizer = function (options) {
     this.log = options.log || console.log;
     this.verbosity = (typeof options.verbosity === 'number' ? options.verbosity : 2);
     this.depth = options.depth || 0;
+    this.densities = options.densities || [ 1 ];
 };
 
 RetinaDownsizer.prototype.run = function (callback) {
@@ -21,11 +23,30 @@ RetinaDownsizer.prototype.run = function (callback) {
         self = this;
 
     async.map(files, function (file, callback) {
+        self.downsizeAsset(file, callback);
+    }, function (err, newFileSets) {
+        var newFiles = _.flatten(newFileSets);
+
         if (self.verbosity > 0) {
-            self.log(color.cyan('Downsizing ' + path.relative(file.root, file.path) + '…'));
+            self.log(color.bold(color.green('Done - ' + newFiles.length + '/' + files.length + ' downsized')));
         }
 
-        downsizeImage(file.path, function (err, newFile) {
+        if (typeof callback === 'function') {
+            callback(err, newFiles);
+        }
+    });
+};
+
+RetinaDownsizer.prototype.downsizeAsset = function (file, callback) {
+    var self = this;
+
+    if (this.verbosity > 0) {
+        this.log(color.cyan('Downsizing ' + path.relative(file.root, file.path) + '…'));
+    }
+
+    async.map(this.densities, function (density, callback) {
+
+        downsizeImage(file.path, density, function (err, newFile) {
             if (err) {
                 if (self.verbosity > 1) {
                     self.log(color.red('✘ ') + color.white(err));
@@ -36,15 +57,12 @@ RetinaDownsizer.prototype.run = function (callback) {
             if (self.verbosity > 1) {
                 self.log(color.green('✓ ') + color.white('Created ' + path.relative(file.root, newFile)));
             }
+
             callback(null, newFile);
         });
-    }, function (err, newFiles) {
-        if (self.verbosity > 0) {
-            self.log(color.bold(color.green('Done - ' + newFiles.length + '/' + files.length + ' downsized')));
-        }
-        if (typeof callback === 'function') {
-            callback(err, newFiles);
-        }
+
+    }, function (err, files) {
+        callback(err, files);
     });
 };
 
@@ -54,7 +72,7 @@ RetinaDownsizer.prototype.getAssetsList = function () {
         i, n;
 
     for (i = 0; i < targets.length; i += 1) {
-        paths = walk.sync(targets[i], { max_depth: this.depth || undefined });
+        paths = walk.sync(targets[i], { max_depth: this.depth || 0 });
 
         for (n = 0; n < paths.length; n += 1) {
             if (scanned.indexOf(paths[n]) === -1) {
