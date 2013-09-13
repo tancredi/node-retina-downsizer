@@ -11,6 +11,8 @@ RetinaDownsizer = function (options) {
     this.targets = options.targets || './';
     this.extensions = options.extensions || [ 'png', 'jpg', 'jpeg', 'gif' ];
     this.log = options.log || console.log;
+    this.verbosity = (typeof options.verbosity === 'number' ? options.verbosity : 2);
+    this.depth = options.depth || 0;
 };
 
 RetinaDownsizer.prototype.run = function (callback) {
@@ -19,20 +21,30 @@ RetinaDownsizer.prototype.run = function (callback) {
         self = this;
 
     async.map(files, function (file, callback) {
-        self.log(color.cyan('Downsizing ' + path.relative(file.root, file.path) + '…'));
+        if (self.verbosity > 0) {
+            self.log(color.cyan('Downsizing ' + path.relative(file.root, file.path) + '…'));
+        }
 
         downsizeImage(file.path, function (err, newFile) {
             if (err) {
-                self.log(color.red('✘ ') + color.white(err));
+                if (self.verbosity > 1) {
+                    self.log(color.red('✘ ') + color.white(err));
+                }
                 return callback(err, null);
             }
 
-            self.log(color.green('✓ ') + color.white('Created ' + path.relative(file.root, newFile)));
+            if (self.verbosity > 1) {
+                self.log(color.green('✓ ') + color.white('Created ' + path.relative(file.root, newFile)));
+            }
             callback(null, newFile);
         });
     }, function (err, newFiles) {
-        self.log(color.bold(color.green('Done - ' + newFiles.length + '/' + files.length + ' downsized')));
-        callback(err, newFiles);
+        if (self.verbosity > 0) {
+            self.log(color.bold(color.green('Done - ' + newFiles.length + '/' + files.length + ' downsized')));
+        }
+        if (typeof callback === 'function') {
+            callback(err, newFiles);
+        }
     });
 };
 
@@ -42,7 +54,7 @@ RetinaDownsizer.prototype.getAssetsList = function () {
         i, n;
 
     for (i = 0; i < targets.length; i += 1) {
-        paths = walk.sync(targets[i]);
+        paths = walk.sync(targets[i], { max_depth: this.depth || undefined });
 
         for (n = 0; n < paths.length; n += 1) {
             if (scanned.indexOf(paths[n]) === -1) {
