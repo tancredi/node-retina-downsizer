@@ -2,6 +2,7 @@
 var config = require('./config'),
     rimraf = require('rimraf'),
     fs = require('fs'),
+    exec = require('child_process').exec,
     path = require('path'),
     im = require('imagemagick'),
     async = require('async');
@@ -79,6 +80,11 @@ module.exports = {
                 async.map(generated, im.identify, callback);
             });
         });
+    },
+
+    execCommandLineTool: function (options, callback) {
+        var optStr = (options.length ? ' ' + options.join(' ') : '');
+        exec("node " + path.resolve(__dirname, '../lib/retinadownsize.js') + optStr, callback);
     }
 
 };
