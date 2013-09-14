@@ -1,7 +1,7 @@
 {
   "name": "retina-downsizer",
   "version": "0.0.3",
-  "description": "A build utility to scan a directory recursively and create non retina version for retina assets",
+  "description": "A small build utility based on node-imagemagick inclusive of command-line tool to fetch and resize retina suffixed (@2x) assets to different pixel densities in configurable and automated fashion.",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/nodeunit/bin/nodeunit test/tests/"
