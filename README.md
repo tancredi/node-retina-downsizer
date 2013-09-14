@@ -71,7 +71,7 @@ new RetinaDownsizer({
 Install globally to use the command line tool
 
 ```
-npm install retina-downsizer - g
+sudo npm install retina-downsizer - g
 ```
 
 ### Usage
@@ -86,4 +86,18 @@ Options:
   -v, --verbose    Verbosity level. -v 0: Silent, -v 1: Log start and end, -v 2: (Default) Log each operation.
   -r, --recursive  Use to fetch and downsize all assets in a directory trees                                  
   -h, --help       Show usage info   
+```
+
+# Test
+
+Test as a local dependency
+
+```
+npm test retina-downsize
+```
+
+Test as a global dependency
+
+```
+sudo npm test retina-downsizer -g
 ```
