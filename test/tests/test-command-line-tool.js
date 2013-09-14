@@ -53,6 +53,58 @@ module.exports = {
                 });
             });
         });
+    },
+
+    'Test default non-recursive behaviour': function (test) {
+        utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
+            utils.createTestImage(200, 200, 'sub/ignore@2x.png', function (filePath) {
+
+                utils.execCommandLineTool([ config.tempDir ], function (err, stdout, stderr) {
+                    test.notStrictEqual(stdout.indexOf('1/1'), -1);
+                    test.done();
+                });
+            });
+        });
+    },
+
+    'Test recursive behaviour with -r': function (test) {
+        utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
+            utils.createTestImage(200, 200, 'sub/include@2x.png', function (filePath) {
+
+                utils.execCommandLineTool([ config.tempDir, '-r' ], function (err, stdout, stderr) {
+                    test.notStrictEqual(stdout.indexOf('2/2'), -1);
+                    test.done();
+                });
+            });
+        });
+    },
+
+    'Test verbosity levels with -vx': function (test) {
+        utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
+
+            async.parallel([
+                function (callback) {
+                    utils.execCommandLineTool([ config.tempDir, '-v0' ], function (err, stdout, stderr) {
+                        test.strictEqual(stdout.length, 0);
+                        callback();
+                    });
+                },
+                function (callback) {
+                    utils.execCommandLineTool([ config.tempDir, '-v1' ], function (err, stdout, stderr) {
+                        test.strictEqual(stdout.split('\n').length, 3);
+                        callback();
+                    });
+                },
+                function (callback) {
+                    utils.execCommandLineTool([ config.tempDir, '-v2' ], function (err, stdout, stderr) {
+                        test.strictEqual(stdout.split('\n').length, 4);
+                        callback();
+                    });
+                }
+            ], function () {
+                test.done();
+            });
+        });
     }
 
 };
