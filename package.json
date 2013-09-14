@@ -1,6 +1,6 @@
 {
   "name": "retina-downsizer",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A build utility to scan a directory recursively and create non retina version for retina assets",
   "main": "index.js",
   "scripts": {
@@ -13,17 +13,14 @@
   "author": "Tancredi Trugenberger",
   "license": "BSD",
   "dependencies": {
-    "async": "~0.2.9",
-    "cli-color": "~0.2.2",
-    "walkdir": "0.0.7",
-    "nodeunit": "~0.8.1",
-    "imagemagick": "~0.1.3",
-    "optimist": "~0.6.0",
-    "underscore": "~1.5.2"
-  },
-  "devDependencies": {
-    "npm": "~1.3.11",
-    "rimraf": "~2.2.2",
-    "install": "~0.1.7"
+    "async": "~0.2.x",
+    "cli-color": "~0.2.x",
+    "walkdir": "0.0.x",
+    "nodeunit": "~0.8.x",
+    "imagemagick": "~0.1.x",
+    "optimist": "~0.6.x",
+    "underscore": "~1.5.x",
+    "rimraf": "~2.2.2.x",
+    "install": "~0.1.7.x"
   }
 }
