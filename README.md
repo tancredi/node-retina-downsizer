@@ -1,6 +1,8 @@
 
 # Retina Downsizer
 
+[![Build Status](https://travis-ci.org/tancredi/node-retina-downsizer.png)](https://travis-ci.org/tancredi/node-retina-downsizer)
+
 A small build utility based on [node-imagemagick](https://github.com/rsms/node-imagemagick) inclusive of command-line tool to fetch and resize retina suffixed (@2x) assets to different pixel densities in configurable and automated fashion.
 
 # Installation
