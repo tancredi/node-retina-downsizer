@@ -1,6 +1,6 @@
 {
   "name": "retina-downsizer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A build utility to scan a directory recursively and create non retina version for retina assets",
   "main": "index.js",
   "scripts": {
@@ -16,11 +16,12 @@
     "async": "~0.2.x",
     "cli-color": "~0.2.x",
     "walkdir": "0.0.x",
-    "nodeunit": "~0.8.x",
     "imagemagick": "~0.1.x",
-    "optimist": "~0.6.x",
+    "optimist": "~0.6.x"
+  },
+  "devDependencies": {
     "underscore": "~1.5.x",
     "rimraf": "~2.2.x",
-    "install": "~0.1.x"
+    "nodeunit": "~0.8.x"
   }
 }
