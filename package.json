@@ -1,6 +1,6 @@
 {
   "name": "retina-downsizer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A small build utility based on node-imagemagick inclusive of command-line tool to fetch and resize retina suffixed (@2x) assets to different pixel densities in configurable and automated fashion.",
   "main": "index.js",
   "scripts": {
