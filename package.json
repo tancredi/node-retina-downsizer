@@ -9,7 +9,10 @@
   "bin": {
     "retinadownsize": "lib/retinadownsize.js"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/tancredi/node-retina-downsizer.git"
+  },
   "author": "Tancredi Trugenberger",
   "license": "BSD",
   "dependencies": {
