@@ -103,3 +103,7 @@ Test as a global dependency
 ```
 sudo npm test retina-downsizer -g
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tancredi/node-retina-downsizer/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
