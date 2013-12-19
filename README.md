@@ -102,7 +102,6 @@ Then run tests with
 
 ```
 npm test
-
 ```
 or
 ```
