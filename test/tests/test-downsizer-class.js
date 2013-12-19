@@ -1,4 +1,3 @@
-
 var RetinaDownsizer = require('../../index.js'),
     utils = require('../test-utils'),
     config = require('../config'),
@@ -12,7 +11,7 @@ module.exports = {
     tearDown: utils.destroyAssetsDir,
 
     'Test with single target': function (test) {
-        var downsizer = new RetinaDownsizer({ targets: config.tempDir, log: function () {} });
+        var downsizer = new RetinaDownsizer({ targets: config.tempDir, log: function () {} }),
             files = [
                 path.resolve(config.tempDir, 'foo@2x.png'),
                 path.resolve(config.tempDir, 'foo/bar@2x.png'),
@@ -43,7 +42,7 @@ module.exports = {
 
         utils.createTestImage(200, 200, 'foo@2x.png', function () {
 
-            downsizer.run(function (err, generated) {
+            downsizer.run(function (err) {
                 if (err) { throw err; }
 
                 async.map([
@@ -79,7 +78,7 @@ module.exports = {
             ],
             log: function () {}
         });
-            files = [
+            var files = [
                 path.resolve(config.tempDir, 'foo/a@2x.png'),
                 path.resolve(config.tempDir, 'foo/b@2x.png'),
                 path.resolve(config.tempDir, 'bar/c@2x.png'),
@@ -186,7 +185,7 @@ module.exports = {
             ],
             newName = path.resolve(config.tempDir, 'foo.png');
 
-        utils.createSamplesAndRun(downsizer, files, function (err, results) {
+        utils.createSamplesAndRun(downsizer, files, function (err) {
             if (err) { throw err; }
 
             fs.exists(newName, function (exists) {
@@ -203,7 +202,7 @@ module.exports = {
             ],
             newFile = path.resolve(config.tempDir, 'a/b/c/d/e/foo.png');
 
-        utils.createSamplesAndRun(downsizer, files, function (err, results) {
+        utils.createSamplesAndRun(downsizer, files, function (err) {
             if (err) { throw err; }
 
             fs.exists(newFile, function (exists) {
@@ -228,10 +227,10 @@ module.exports = {
                     logs.push(msg);
                 },
                 verbosity: 2
-            });
+            }),
             files = [ path.resolve(config.tempDir, 'foo@2x.png') ];
 
-        utils.createSamplesAndRun(downsizer, files, function (err, results) {
+        utils.createSamplesAndRun(downsizer, files, function (err) {
             if (err) { throw err; }
 
             test.strictEqual(logs.length, 3);
@@ -252,10 +251,10 @@ module.exports = {
                     logs.push(msg);
                 },
                 verbosity: 1
-            });
+            }),
             files = [ path.resolve(config.tempDir, 'foo@2x.png') ];
 
-        utils.createSamplesAndRun(downsizer, files, function (err, results) {
+        utils.createSamplesAndRun(downsizer, files, function (err) {
             if (err) { throw err; }
 
             test.strictEqual(logs.length, 2);
@@ -272,10 +271,10 @@ module.exports = {
                     logs.push(msg);
                 },
                 verbosity: 0
-            });
+            }),
             files = [ path.resolve(config.tempDir, 'foo@2x.png') ];
 
-        utils.createSamplesAndRun(downsizer, files, function (err, results) {
+        utils.createSamplesAndRun(downsizer, files, function (err) {
             if (err) { throw err; }
 
             test.strictEqual(logs.length, 0);
@@ -293,10 +292,10 @@ module.exports = {
                 },
                 verbosity: 2,
                 densities: [ 1, 1.5, 1.8 ]
-            });
+            }),
             files = [ path.resolve(config.tempDir, 'foo@2x.png') ];
 
-        utils.createSamplesAndRun(downsizer, files, function (err, results) {
+        utils.createSamplesAndRun(downsizer, files, function (err) {
             if (err) { throw err; }
 
             test.strictEqual(logs.length, 5);

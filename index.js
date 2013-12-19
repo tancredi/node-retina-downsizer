@@ -1,11 +1,12 @@
-
 var path = require('path'),
     _ = require('underscore'),
     async = require('async'),
     color = require('cli-color'),
     walk = require('walkdir'),
-    downsizeImage = require('./utils/downsizeImage'),
-    RetinaDownsizer;
+    downsizeImage = require('./utils/downsizeImage');
+
+var RetinaDownsizer,
+    parallelLimit = 50;
 
 RetinaDownsizer = function (options) {
     options = options || {};
@@ -18,11 +19,10 @@ RetinaDownsizer = function (options) {
 };
 
 RetinaDownsizer.prototype.run = function (callback) {
-    var filename, parts, i, suffixed, ext,
-        files = this.getAssetsList(),
+    var files = this.getAssetsList(),
         self = this;
 
-    async.map(files, function (file, callback) {
+    async.mapLimit(files, parallelLimit, function (file, callback) {
         self.downsizeAsset(file, callback);
     }, function (err, newFileSets) {
         var newFiles = _.flatten(newFileSets);
@@ -69,7 +69,7 @@ RetinaDownsizer.prototype.downsizeAsset = function (file, callback) {
 RetinaDownsizer.prototype.getAssetsList = function () {
     var targets = (typeof this.targets === 'string' ? [ this.targets ] : this.targets),
         paths = [], files = [], scanned = [],
-        i, n;
+        i, n, parts, ext, suffixed;
 
     for (i = 0; i < targets.length; i += 1) {
         paths = walk.sync(targets[i], { max_depth: this.depth || 0 });

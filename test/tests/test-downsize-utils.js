@@ -1,4 +1,3 @@
-
 var utils = require('../test-utils'),
     config = require('../config'),
     downsizeImage = require('../../utils/downsizeImage.js'),
@@ -40,7 +39,7 @@ module.exports = {
             async.parallel([
 
                 function (callback) {
-                    downsizeImage(filePath, 1, function (err, newFile) {
+                    downsizeImage(filePath, 1, function () {
                         im.identify(path.resolve(config.tempDir, 'foo.png'), function (err, features) {
                             if (err) { throw err; }
 
@@ -53,7 +52,7 @@ module.exports = {
                 },
 
                 function (callback) {
-                    downsizeImage(filePath, 1.5, function (err, newFile) {
+                    downsizeImage(filePath, 1.5, function () {
                         im.identify(path.resolve(config.tempDir, 'foo@1.5.png'), function (err, features) {
                             if (err) { throw err; }
 
@@ -76,7 +75,7 @@ module.exports = {
         utils.createTestImage(200, 200, 'test/no-suffix.png', function (filePath) {
 
             test.throws(function () {
-                downsizeImage(filePath, 1, function (err, newFile) {
+                downsizeImage(filePath, 1, function (err) {
                     if (err) { throw err; }
                 });
             }, Error);

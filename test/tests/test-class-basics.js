@@ -1,4 +1,3 @@
-
 var RetinaDownsizer = require('../../index.js');
 
 module.exports = {
@@ -11,8 +10,7 @@ module.exports = {
     },
 
     'Test default configuration': function (test) {
-        var configuration = {},
-            instance;
+        var instance;
 
         test.doesNotThrow(function () {
             instance = new RetinaDownsizer();

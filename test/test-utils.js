@@ -1,4 +1,3 @@
-
 var config = require('./config'),
     rimraf = require('rimraf'),
     fs = require('fs'),
@@ -54,8 +53,6 @@ module.exports = {
 
     createAssetDir: function (callback) {
         fs.mkdir(config.tempDir, function (err) {
-            var images = {}, i;
-
             if (err && err.code !== 'EEXIST') {
                 throw err;
             }
@@ -84,7 +81,7 @@ module.exports = {
 
     execCommandLineTool: function (options, callback) {
         var optStr = (options.length ? ' ' + options.join(' ') : '');
-        exec("node " + path.resolve(__dirname, '../lib/retinadownsize.js') + optStr, callback);
+        exec('node ' + path.resolve(__dirname, '../lib/retinadownsize.js') + optStr, callback);
     }
 
 };

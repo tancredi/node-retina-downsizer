@@ -1,9 +1,7 @@
-
 var utils = require('../test-utils'),
     config = require('../config'),
     im = require('imagemagick'),
     path = require('path'),
-    fs = require('fs'),
     async =require('async');
 
 module.exports = {
@@ -12,7 +10,7 @@ module.exports = {
 
     'Executes without throwing': function (test) {
         test.doesNotThrow(function () {
-            utils.execCommandLineTool([], function (err, stdout, stderr) {});
+            utils.execCommandLineTool([], function () {});
         });
 
         test.done();
@@ -26,7 +24,7 @@ module.exports = {
     },
 
     'Shows usage if called with -h': function (test) {
-        utils.execCommandLineTool([ '-h' ], function (err, stdout, stderr) {
+        utils.execCommandLineTool([ '-h' ], function (err, stdout) {
             test.notStrictEqual(stdout.indexOf('Usage:'), -1);
             test.notStrictEqual(stdout.indexOf('-v'), -1);
             test.notStrictEqual(stdout.indexOf('-r'), -1);
@@ -36,9 +34,9 @@ module.exports = {
     },
 
     'Test basic use on single image': function (test) {
-        utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
+        utils.createTestImage(200, 200, 'foo@2x.png', function () {
 
-            utils.execCommandLineTool([ config.tempDir ], function (err, stdout, stderr) {
+            utils.execCommandLineTool([ config.tempDir ], function (err, stdout) {
                 test.notStrictEqual(stdout.indexOf('Created foo.png'), -1);
                 test.notStrictEqual(stdout.indexOf('Done'), -1);
                 test.notStrictEqual(stdout.indexOf('1/1'), -1);
@@ -56,10 +54,10 @@ module.exports = {
     },
 
     'Test default non-recursive behaviour': function (test) {
-        utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
-            utils.createTestImage(200, 200, 'sub/ignore@2x.png', function (filePath) {
+        utils.createTestImage(200, 200, 'foo@2x.png', function () {
+            utils.createTestImage(200, 200, 'sub/ignore@2x.png', function () {
 
-                utils.execCommandLineTool([ config.tempDir ], function (err, stdout, stderr) {
+                utils.execCommandLineTool([ config.tempDir ], function (err, stdout) {
                     test.notStrictEqual(stdout.indexOf('1/1'), -1);
                     test.done();
                 });
@@ -68,10 +66,10 @@ module.exports = {
     },
 
     'Test recursive behaviour with -r': function (test) {
-        utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
-            utils.createTestImage(200, 200, 'sub/include@2x.png', function (filePath) {
+        utils.createTestImage(200, 200, 'foo@2x.png', function () {
+            utils.createTestImage(200, 200, 'sub/include@2x.png', function () {
 
-                utils.execCommandLineTool([ config.tempDir, '-r' ], function (err, stdout, stderr) {
+                utils.execCommandLineTool([ config.tempDir, '-r' ], function (err, stdout) {
                     test.notStrictEqual(stdout.indexOf('2/2'), -1);
                     test.done();
                 });
@@ -80,23 +78,23 @@ module.exports = {
     },
 
     'Test verbosity levels with -vx': function (test) {
-        utils.createTestImage(200, 200, 'foo@2x.png', function (filePath) {
+        utils.createTestImage(200, 200, 'foo@2x.png', function () {
 
             async.parallel([
                 function (callback) {
-                    utils.execCommandLineTool([ config.tempDir, '-v0' ], function (err, stdout, stderr) {
+                    utils.execCommandLineTool([ config.tempDir, '-v0' ], function (err, stdout) {
                         test.strictEqual(stdout.length, 0);
                         callback();
                     });
                 },
                 function (callback) {
-                    utils.execCommandLineTool([ config.tempDir, '-v1' ], function (err, stdout, stderr) {
+                    utils.execCommandLineTool([ config.tempDir, '-v1' ], function (err, stdout) {
                         test.strictEqual(stdout.split('\n').length, 3);
                         callback();
                     });
                 },
                 function (callback) {
-                    utils.execCommandLineTool([ config.tempDir, '-v2' ], function (err, stdout, stderr) {
+                    utils.execCommandLineTool([ config.tempDir, '-v2' ], function (err, stdout) {
                         test.strictEqual(stdout.split('\n').length, 4);
                         callback();
                     });
