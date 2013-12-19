@@ -90,16 +90,21 @@ Options:
   -h, --help       Show usage info   
 ```
 
-# Test
+# Test with nodeunit
 
-Test as a local dependency
-
-```
-npm test retina-downsize
-```
-
-Test as a global dependency
+You need to install nodeunit as a global dependency
 
 ```
-sudo npm test retina-downsizer -g
+sudo npm install -g nodeunit
+```
+
+Then run tests with
+
+```
+npm test
+
+```
+or
+```
+nodeunit test/tests
 ```
